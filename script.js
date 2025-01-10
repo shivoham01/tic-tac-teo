@@ -2,12 +2,14 @@ let cells = document.querySelectorAll('.cell');
 let playerStatus = document.getElementById('status');
 let winner = document.getElementById('winner');
 let reset = document.getElementById('reset');
+const winAudio = new Audio('./win.mp3');
+const clickAudio = new Audio('./music.mp3');
 
 let player = "X";
 let XBlocks = [];
 let OBlocks = [];
 
-const winningCombinations = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 5, 9], [3, 5, 7], [2, 5, 8], [2, 5, 8], [3, 6, 9]];
+const winningCombinations = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 5, 9], [1, 4, 7], [3, 5, 7], [2, 5, 8], [3, 6, 9]];
 
 const stopGame = () => {
     cells.forEach(cell => {
@@ -15,16 +17,18 @@ const stopGame = () => {
     });
 };
 
-function checkForWinner() {
+const checkWinner = () => {
     for (let combination of winningCombinations) {
-        if (combination.every(cell => XBlocks.includes(cell))) {
-            winner.innerHTML = `<span>The Winner is <h1>X</h1></span>`;
-            stopGame()
+        if (combination.every(combo => XBlocks.includes(combo))) {
+            winAudio.play();
+            winner.innerHTML = `<span>The winner is <h1>X</h1></span>`;
+            stopGame();
             return;
         }
-        else if (combination.every(cell => OBlocks.includes(cell))) {
-            winner.innerHTML = `<span>The Winner is <h1>O</h1></span>`;
-            stopGame()
+        else if (combination.every(combo => OBlocks.includes(combo))) {
+            winAudio.play();
+            winner.innerHTML = `<span>The winner is <h1>O</h1></span>`;
+            stopGame();
             return;
         }
     }
@@ -35,27 +39,23 @@ function checkForWinner() {
 }
 
 const handleClick = (cell) => {
-    cell.style.pointerEvents = "none";
-    if (player === "X") {
-        cell.innerHTML = player
-        player = "O"
-        playerStatus.innerHTML = `Player ${player}'s Turn`
-        XBlocks.push(parseInt(cell.id))
+    clickAudio.play();
 
-        if (checkForWinner()) {
-            return;
-        }
+    if (player === "X") {
+        XBlocks.push(parseInt(cell.id));
+        cell.innerHTML = "X";
+        playerStatus.innerHTML = "Player O's Turn";
     }
     else {
-        cell.innerHTML = player
-        player = "X"
-        playerStatus.innerHTML = `Player ${player}'s Turn`
-        OBlocks.push(parseInt(cell.id))
-
-        if (checkForWinner()) {
-            return;
-        }
+        OBlocks.push(parseInt(cell.id));
+        cell.innerHTML = "O";
+        playerStatus.innerHTML = "Player X's Turn";
     }
+    if (checkWinner()) {
+        return;
+    }
+
+    player === "X" ? player = "O" : player = "X";
 }
 
 reset.addEventListener('click', () => location.reload());
